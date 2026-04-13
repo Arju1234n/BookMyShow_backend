@@ -10,16 +10,28 @@ if (!mongoUri) {
 
 mongoose.set('strictQuery', true);
 
-mongoose
-    .connect(mongoUri, {
-        autoIndex: true
-    })
-    .then(() => {
+// Cache the connection for serverless environments (Vercel)
+let isConnected = false;
+
+const connectDB = async () => {
+    if (isConnected) return;
+
+    try {
+        const db = await mongoose.connect(mongoUri, {
+            autoIndex: true,
+            serverSelectionTimeoutMS: 10000,
+            socketTimeoutMS: 45000,
+        });
+        isConnected = db.connections[0].readyState === 1;
         console.log('✅ MongoDB connected successfully.');
-    })
-    .catch((err) => {
+    } catch (err) {
         console.error('❌ MongoDB connection failed:', err.message);
-        process.exit(1);
-    });
+        throw err;
+    }
+};
+
+// Connect immediately for local dev
+connectDB();
 
 module.exports = mongoose;
+module.exports.connectDB = connectDB;

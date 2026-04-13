@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const { errorHandler, notFound } = require('./middleware/errorMiddleware');
 const db = require('./db');
+const { connectDB } = require('./db');
 
 // ─── Route Imports ───────────────────────────────────────────────
 const authRoutes = require('./Routes/authRoutes');
@@ -32,6 +33,16 @@ app.use(cors());                                // Cross-origin access
 app.use(bodyParser.json({ limit: '10kb' }));    // Parse JSON, limit body size
 app.use(helmet.crossOriginResourcePolicy({ policy: "cross-origin" })); // Allow images to be viewed cross-origin
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // serve static images
+
+// ─── Ensure DB is connected (for serverless environments) ────────
+app.use(async (req, res, next) => {
+    try {
+        await connectDB();
+        next();
+    } catch (err) {
+        res.status(500).json({ error: 'Database connection failed' });
+    }
+});
 
 // ─── Health Check ────────────────────────────────────────────────
 app.get('/', (req, res) => {
