@@ -46,10 +46,16 @@ app.use(async (req, res, next) => {
 
 // ─── Health Check ────────────────────────────────────────────────
 app.get('/', (req, res) => {
+    const mongoose = require('mongoose');
     res.status(200).json({
         status: 'success',
         message: 'Book My Show Backend is running.',
-        version: '1.0.0'
+        version: '1.0.0',
+        db_status: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+        env_check: {
+            MONGO_URI: process.env.MONGO_URI ? 'SET' : 'NOT SET',
+            JWT_SECRET: process.env.JWT_SECRET ? 'SET' : 'NOT SET'
+        }
     });
 });
 
