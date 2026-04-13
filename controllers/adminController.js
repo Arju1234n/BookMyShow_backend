@@ -58,7 +58,7 @@ const login = (req, res) => {
 
         const token = jwt.sign(
             { id: admin.admin_id, email: admin.email, role: 'admin' },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'bookmyshow_secret_key_2026',
             { expiresIn: '7d' }
         );
 

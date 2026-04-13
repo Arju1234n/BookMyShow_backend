@@ -65,7 +65,7 @@ const login = (req, res) => {
         // Generate JWT token
         const token = jwt.sign(
             { id: user.user_id, email: user.email, role: 'user' },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'bookmyshow_secret_key_2026',
             { expiresIn: '7d' }
         );
 
